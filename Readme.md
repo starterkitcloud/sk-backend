@@ -1,4 +1,7 @@
 # StarterKitCloud - Backend
+
+![alt text](http://www.starterkit.cloud/static/img/starter-kit-graphic.ab49944.png "Logo Title Text 1")
+
 ## everything you need to start your project
 
 ### general overview
@@ -115,4 +118,4 @@ To run all the services at the same time all you have to do is this:
 
 `docker-compose up`
 
-Depending on what you are working on you usually don't need to run all the services at once outside of production. 
+Depending on what you are working on you usually don't need to run all the services at once outside of production.
