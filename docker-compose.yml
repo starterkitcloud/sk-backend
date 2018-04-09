@@ -49,7 +49,7 @@ services:
       - DEBUG=False
     volumes:
       - .:/backend
-  beat:
+  beat: #you should never one more than one instance of beat or else you will get repeat jobs.
     build:
       context: .
       dockerfile: Dockerfile
