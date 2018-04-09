@@ -76,7 +76,7 @@ send job to queue ---> rabbitMQ (broker that manages queue of jobs) ---> celery 
 
 **Stop all the services if you have any running.**
 
-run the following command to start up celery "default" worker and rabbitMQ server:
+run the following command to start up celery "default" worker, rabbitMQ server, and web:
 
 `docker-compose up rabbit worker web`
 
@@ -107,3 +107,12 @@ run the following command to start up celery "beat" worker, beat service, and ra
 `docker-compose up  periodic_worker beat rabbit`  
 
 you should see the periodic_worker service print to screen every second.
+
+
+### putting it all together
+
+To run all the services at the same time all you have to do is this:
+
+`docker-compose up`
+
+Depending on what you are working on you usually don't need to run all the services at once outside of production. 
