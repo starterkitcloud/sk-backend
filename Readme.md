@@ -20,14 +20,14 @@ First things first. You need to make a seed.env file that will hold all the cred
 
 The following can be used for a development environment. Of course you would use real credentials in production. * indicates a variable you need to set up with your own info. save the follwing as seed.env and place in the root of this repository.
 ```
-DJANGO_SECRET_KEY=#####
+DJANGO_SECRET_KEY=$3cr3t_k3y
 DJANGO_DB=app_dev
 DJANGO_DB_PASS=thepassword
 DJANGO_DB_USER=app_dev
 DJANGO_DB_HOST=db
-DJANGO_S3_STORAGE=an-s3-bucket-for-static-files-and-put-name-here*
+DJANGO_S3_STORAGE=an-s3-bucket-for-static-files*
 AWS_SECRET_ACCESS_KEY=aws-user-secret-key-that-has-s3-access*
-AWS_ACCESS_KEY_ID=aws-user-that-has-s3-access*
+AWS_ACCESS_KEY_ID=aws-user-key-that-has-s3-access*
 CELERY_USER=rabbit
 CELERY_PASSWORD=rabbitpass
 CELERY_HOSTNAME=rabbit
@@ -72,7 +72,7 @@ In general it works like this:
 
 send job to queue ---> rabbitMQ (broker that manages queue of jobs) ---> celery workers sits there waiting to do jobs in the queue.
 
-run the following command to start up celery and "default" worker and rabbitMQ server:
+run the following command to start up celery "default" worker and rabbitMQ server:
 
 `docker-compose up rabbit worker`
 
@@ -81,3 +81,14 @@ You can now visit <http://localhost:15672> in your browser and log in with
 username: rabbit
 
 password: rabbitpass
+
+
+### run the test task:
+
+There is a management command at <https://github.com/starterkitcloud/sk-backend/blob/master/app/sk_accounts/management/commands/example_task_command.py> called example_task_command .
+
+Run the following command in another terminal:
+
+`docker-compose run web python ./manage.py example_task_command`
+
+You should see 1000 tasks print to screen from the worker service. Also, take a look at the rabbit dashboard and you will see that the queue stats change.
