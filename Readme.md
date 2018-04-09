@@ -1,6 +1,6 @@
 # StarterKitCloud - Backend
 
-![alt text](http://www.starterkit.cloud/static/img/starter-kit-graphic.ab49944.png "Logo Title Text 1")
+![alt text](https://s3-us-west-2.amazonaws.com/www.starterkit.cloud/Screen+Shot+2018-04-08+at+11.12.47+PM.png "Logo Title Text 1")
 
 ## everything you need to start your project
 
