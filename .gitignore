@@ -1,0 +1,5 @@
+.vagrant
+*.pyc
+.coverage
+seed.env
+.DS_Store

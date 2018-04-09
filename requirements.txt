@@ -1,0 +1,15 @@
+psycopg2
+Django==1.11.6
+djangorestframework
+markdown
+django-filter
+pygments
+django-cors-headers
+django-oauth-toolkit
+boto3
+fabric3
+gunicorn
+django-storages
+coverage
+coreapi
+celery
