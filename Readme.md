@@ -49,11 +49,11 @@ This will start up the database and the web application. You can now visit <http
 
 Run your django migrations:
 
-`docker-compose run web python ./app/manage.py migrate`
+`docker-compose run web python ./manage.py migrate`
 
 Create a super user:
 
-`docker-compose run web python ./app/manage.py createsuperuser`
+`docker-compose run web python ./manage.py createsuperuser`
 
 You can now log in to the API's admin area by visiting the following url in a browser <http://localhost:8000/admin> and logging in with the superuser you just created.
 
@@ -65,16 +65,20 @@ You should see that 2 containers are running; db and web .
 
 
 ## Get started with rabbitMQ and Celery
-
-In basic terms, celery is a python library that makes it easy to manage a queue of tasks in a scalable way. It is great for processing doing computing jobs that may take a long time or are just more convenient to do outside of the web application layer in general . [Learn more about celery here.](http://docs.celeryproject.org/en/latest/index.html)
+In basic terms, celery is a python library that makes it easy to manage a queue of tasks in a scalable way. It is great for doing computing jobs that may take a long time or are just more convenient to do outside of the web application layer in general . [Learn more about celery here.](http://docs.celeryproject.org/en/latest/index.html)
 
 In general it works like this:
 
-send job to queue ---> rabbitMQ (broker that manages queue of jobs) ---> celery workers sits there waiting to do jobs in the queue.
+send job to queue ---> rabbitMQ (broker that manages queue of jobs) ---> celery workers sit there waiting to do the jobs in the queue.
+
+
+### regular tasks (demo)
+
+Stop all the services that you have running.
 
 run the following command to start up celery "default" worker and rabbitMQ server:
 
-`docker-compose up rabbit worker`
+`docker-compose up rabbit worker web`
 
 You can now visit <http://localhost:15672> in your browser and log in with
 
@@ -82,8 +86,7 @@ username: rabbit
 
 password: rabbitpass
 
-
-### run the test task:
+now run the test task:
 
 There is a management command at <https://github.com/starterkitcloud/sk-backend/blob/master/app/sk_accounts/management/commands/example_task_command.py> called example_task_command .
 
@@ -92,3 +95,15 @@ Run the following command in another terminal:
 `docker-compose run web python ./manage.py example_task_command`
 
 You should see 1000 tasks print to screen from the worker service. Also, take a look at the rabbit dashboard and you will see that the queue stats change.
+
+### run a periodic task (demo):
+
+Stop all the services that you have running.
+
+There is a periodic task scheduled in the settings at <https://github.com/starterkitcloud/sk-backend/blob/master/app/app/settings.py#L175-L186> called test_beat .
+
+run the following command to start up celery "beat" worker, beat service, and rabbitMQ server:
+
+`docker-compose up  periodic_worker beat rabbit`  
+
+you should see the periodic_worker service print to screen every second.
