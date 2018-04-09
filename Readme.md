@@ -74,7 +74,7 @@ send job to queue ---> rabbitMQ (broker that manages queue of jobs) ---> celery 
 
 ### regular tasks (demo)
 
-Stop all the services that you have running.
+**Stop all the services if you have any running.**
 
 run the following command to start up celery "default" worker and rabbitMQ server:
 
@@ -96,9 +96,9 @@ Run the following command in another terminal:
 
 You should see 1000 tasks print to screen from the worker service. Also, take a look at the rabbit dashboard and you will see that the queue stats change.
 
-### run a periodic task (demo):
+### run periodic tasks (demo):
 
-Stop all the services that you have running.
+**Stop all the services if you have any running.**
 
 There is a periodic task scheduled in the settings at <https://github.com/starterkitcloud/sk-backend/blob/master/app/app/settings.py#L175-L186> called test_beat .
 
