@@ -34,6 +34,16 @@ class UserViewSet(MixedPermissionModelViewSet):
     serializer_class = UserSerializer
 
 
+class ConfirmUserAccount(APIView):
+    def get(self, request, format=None):
+        """
+        Return true if valid token is in parameter data
+        Return error with message if invalid token is in the parameter data
+        """
+        data = {'hello':'world'}
+        return Response(data)
+        #you need to add a url for this view in urls.py
+
 
 class UserInfo(APIView):
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
