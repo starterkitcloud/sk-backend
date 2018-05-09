@@ -1,0 +1,3 @@
+fix celery setting so that there is a default
+write tests for user account confirmation endpoint
+build the reset password endpoints with tests
