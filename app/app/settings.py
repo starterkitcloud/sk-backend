@@ -157,6 +157,14 @@ OAUTH2_PROVIDER = {
 
 
 
+EMAIL_HOST='smtp.mailgun.org'
+EMAIL_PORT=587
+EMAIL_HOST_USER='postmaster@mg.ethspeak.com'
+EMAIL_HOST_PASSWORD=os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS=True
+
+CLIENT_URI=os.environ.get("CLIENT_URI", "")
+
 CELERY_USER = os.environ.get("CELERY_USER", "")
 CELERY_PASSWORD = os.environ.get("CELERY_PASSWORD", "")
 CELERY_HOSTNAME = os.environ.get("CELERY_HOSTNAME", "")

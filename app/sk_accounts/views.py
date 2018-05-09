@@ -3,9 +3,11 @@ from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, Token
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer
+from .serializers import UserSerializer, account_activation_token
 import json
 from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.test import APIRequestFactory
+
 
 class MixedPermissionModelViewSet(viewsets.ModelViewSet):
    '''
@@ -35,15 +37,21 @@ class UserViewSet(MixedPermissionModelViewSet):
 
 
 class ConfirmUserAccount(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, format=None):
         """
         Return true if valid token is in parameter data
         Return error with message if invalid token is in the parameter data
         """
-        data = {'hello':'world'}
-        return Response(data)
-        #you need to add a url for this view in urls.py
+        user = User.objects.get(email=request.GET['email'])
+        token = request.GET['token']
 
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            user.save()
+            data = {'message':'user is now active'}
+            return Response(data)
+        #need an else for failure
 
 class UserInfo(APIView):
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
