@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from sk_accounts.views import UserViewSet, UserInfo, ConfirmUserAccount
+from sk_accounts.views import UserViewSet, UserInfo, ConfirmUserAccount, RequestResetPassword
 from rest_framework import routers
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^v1/user_summary', UserInfo.as_view()),
     url(r'^v1/confirm_account', ConfirmUserAccount.as_view()),
+    url(r'^v1/request-password-reset', RequestResetPassword.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
