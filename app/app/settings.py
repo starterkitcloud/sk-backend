@@ -109,19 +109,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-
 STATIC_URL = '/static/'
+AWS_STORAGE_BUCKET_NAME = os.environ["DJANGO_S3_STORAGE"]
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+MEDIAFILES_LOCATION = 'media'
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
 
-if os.environ["DJANGO_DB_USER"] == "development":
-    pass
-else:
-    AWS_STORAGE_BUCKET_NAME = os.environ["DJANGO_S3_STORAGE"]
-    STATICFILES_LOCATION = 'static'
-    STATICFILES_STORAGE = 'custom_storages.StaticStorage'
-
-    MEDIAFILES_LOCATION = 'media'
-    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
-    AWS_STORAGE_BUCKET_NAME = os.environ['DJANGO_S3_STORAGE']
 
 
 DATABASES = {

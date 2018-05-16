@@ -2,7 +2,7 @@ from django.test import TestCase
 from .serializers import UserSerializer
 from django.contrib.auth.models import User
 from django.db.utils import IntegrityError
-from .views import UserInfo, ConfirmUserAccount, RequestResetPassword, ResetPassword
+from .views import UserInfo, ConfirmUserAccount, RequestResetPassword, ResetPassword, VerifyToken
 from rest_framework.test import APIRequestFactory, force_authenticate
 from oauth2_provider.models import Application, AccessToken
 import datetime
@@ -103,30 +103,61 @@ class TestUserConfirmationEndpoint(TestCase):
         self.assertEqual(updated_user.is_active, True)
 
 
-# class TestResetPasswordEndpoint(TestCase):
-#     def setUp(self):
-#         self.factory = APIRequestFactory()
-#         self.view = ResetPassword.as_view()
-#         self.user = self.user_inactive = User.objects.create_user(
-#             username='spencercooley1', email='contact@spencercooley1.com',
-#             password='top_secret', is_active=True)
-#
-#         self.token = TokenGenerator().make_token(self.user)
-#
-#     def test_password_is_reset_when_token_and_email_present_and_valid(self):
-#         data = {
-#             'email': self.user.email,
-#             'token': self.token,
-#             'new_password': 'new_top_secret'
-#         }
-#         request = self.factory.post('v1/reset-password', data=data)
-#         response = self.view(request)
-#
-#         self.assertEqual(response.status_code, 200)
+class TestTokenIsValidEndpoint(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = VerifyToken.as_view()
+        self.user = User.objects.create_user(
+            username='spencercooley33', email='contact@spencercooley33.com',
+            password='top_secret')
+
+    def test_that_false_token_returns_401(self):
+        false_token = 'not-a-real-token'
+        true_email = 'contact@spencercooley33.com'
+        request = self.factory.get('v1/verify-token?token={}&email={}'
+                                                .format(false_token, true_email))
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_correct_token_returns_200(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+        true_email = 'contact@spencercooley33.com'
+        request = self.factory.get('v1/verify-token?token={}&email={}'
+                                                .format(true_token, true_email))
+        response = self.view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_that_false_email_returns_401(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+        false_email = 'contact@falsemail.com'
+        request = self.factory.get('v1/verify-token?token={}&email={}'
+                                                .format(true_token, false_email))
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_no_email_returns_401(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+        request = self.factory.get('v1/verify-token?token={}'
+                                                .format(true_token))
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_no_token_returns_401(self):
+        true_email = 'contact@spencercooley33.com'
+        request = self.factory.get('v1/verify-token?email={}'
+                                                .format(true_email))
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
 
 
+
+# this endpoint only makes a request to reset password
+# it does not reset the password
+# an email is sent with a reset url
 class TestResetPasswordRequestEndpoint(TestCase):
-
     def setUp(self):
         self.factory = APIRequestFactory()
 
@@ -163,3 +194,107 @@ class TestResetPasswordRequestEndpoint(TestCase):
                                             .format('email@doesnotexist.com'))
         response = self.view(request_false_email)
         self.assertEqual(response.status_code, 200)
+
+#this endpoint actually resets the password
+class TestPasswordResetEndpoint(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.view = ResetPassword.as_view()
+        self.user = User.objects.create_user(
+            username='spencercooley33', email='contact@spencercooley33.com',
+            password='top_secret')
+
+    def test_that_false_token_returns_401(self):
+        false_token = 'not-a-real-token'
+        true_email = 'contact@spencercooley33.com'
+        data = {
+            'token': false_token,
+            'email': true_email,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_correct_token_returns_200(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+
+        true_email = 'contact@spencercooley33.com'
+        data = {
+            'token': true_token,
+            'email': true_email,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 200)
+
+    def test_that_false_email_returns_401(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+
+        false_email = 'contact@spencercooleysdfsdf.com'
+        data = {
+            'token': true_token,
+            'email': false_email,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_no_email_returns_401(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+
+        data = {
+            'token': true_token,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_no_token_returns_401(self):
+        true_email = 'contact@spencercooley33.com'
+        data = {
+            'email': true_email,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_missing_new_password_returns_401(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+
+        true_email = 'contact@spencercooley33.com'
+        data = {
+            'token': true_token,
+            'email': true_email,
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 401)
+
+    def test_that_password_is_actually_changed(self):
+        account_activation_token = TokenGenerator()
+        true_token = account_activation_token.make_token(self.user)
+
+        true_email = 'contact@spencercooley33.com'
+        data = {
+            'token': true_token,
+            'email': true_email,
+            'new_password': 'newpassword115'
+        }
+        request = self.factory.post('v1/reset-password', data)
+        response = self.view(request)
+        self.assertEqual(response.status_code, 200)
+        #look up the user instance
+        the_user = User.objects.get(email='contact@spencercooley33.com')
+        #old password
+        self.assertEqual(the_user.check_password('top_secret'), False)
+        #new password
+        self.assertEqual(the_user.check_password(data['new_password']), True)

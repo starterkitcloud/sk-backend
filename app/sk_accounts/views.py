@@ -48,14 +48,59 @@ class UserInfo(APIView):
         }
         return Response(data)
 
-class ResetPassword(APIView):
-    """
-    resets the passsword
-    """
-    permission_classes = [AllowAny]
 
+class ResetPassword(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, format=None):
-        print(request.POST)
+        email = request.POST.get('email', default='notarealemail@fakeemail.com')
+        token = request.POST.get('token', default='not-a-real-token')
+
+        try:
+            new_password = request.POST['new_password']
+        except MultiValueDictKeyError:
+            data = {'message':'You must provide a new password'}
+            return Response(data, status=401)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            data = {'message':'Something went wrong.'}
+            return Response(data, status=401)
+
+        account_activation_token = TokenGenerator()
+        reset_token = account_activation_token.check_token(user, token)
+        if reset_token:
+            #allow user to reset the password
+            user.set_password(new_password)
+            user.save()
+            data = {'message':'password has been reset successfully'}
+            return Response(data)
+        else:
+            data = {'message':'something went wrong'}
+            return Response(data, status=401)
+
+
+
+class VerifyToken(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, format=None):
+        email = request.GET.get('email', default='notarealemail@fakeemail.com')
+        token = request.GET.get('token', default='not-a-real-token')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            data = {'message':'this url is not valid'}
+            return Response(data, status=401)
+
+        account_activation_token = TokenGenerator()
+        reset_token = account_activation_token.check_token(user, token)
+        if reset_token:
+            data = {'message':'url is valid'}
+            return Response(data)
+        else:
+            data = {'message':'url is not valid'}
+            return Response(data, status=401)
 
 
 class RequestResetPassword(APIView):

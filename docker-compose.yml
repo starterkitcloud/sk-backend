@@ -10,6 +10,15 @@ services:
       - seed.env
     volumes:
     - .:/webapp
+  #runs tests
+  tests:
+    build: .
+    working_dir: /webapp/app/
+    command: python3 manage.py test
+    env_file:
+      - seed.env
+    volumes:
+    - .:/webapp
   #db service should only be used in development
   db:
     image: postgres
